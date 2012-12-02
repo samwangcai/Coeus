@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+        Remove this if you use the .htaccess -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>zdxj</title>
+        <meta name="description" content="" />
+        <meta name="generator" content="Studio 3 http://aptana.com/" />
+        <meta name="author" content="Alex Cheng" />
+        <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="stylesheet" href="styles/common.css" type="text/css"/>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+        <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $("#player").hide();
+                $.ajax({
+                    url : "http://localhost/coeus/data/test.xml",
+                    dataType : "xml",
+                    crossDomain : true,
+                    success : function(data) {
+                        var grammars = data.documentElement.getElementsByTagName("grammar");
+                        var $container = $("#container");
+                        $(grammars).each(function() {
+                            $("<h2/>").text(this.getElementsByTagName("name")[0].textContent).appendTo($container);
+                            $("<h3/>").text(this.getElementsByTagName("desc")[0].textContent)
+                            .appendTo($container)
+                            .addClass("clickable")
+                            .data("page", this.getElementsByTagName("page")[0])
+                            .click(function(event) {
+                                $container.hide();
+                                var page = $(this).data("page");
+                                $("#board").append($("<img />")
+                                .attr("src", page.getElementsByTagName("graph")[0].textContent))
+                                .dialog({
+                                    modal : true,
+                                    position : {
+                                        my : "center",
+                                        at : "center",
+                                        of : window.document
+                                    },
+                                    resizable : false,
+                                    width : 700,
+                                    height : 500,
+                                    close : function(event, ui) {
+                                        $container.show();
+                                    },
+                                    open : function(event, ui) {
+                                        var player = $("#player")[0];
+                                        player.src = page.getElementsByTagName("mp3")[0].textContent;
+                                        player.load();
+                                        player.play();
+                                    }
+                                });
+                            });
+                        });
+                    }
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <div id="container"></div>
+        <div id="board" style="width:700px; height:500px"></div>
+        <audio id="player" src="" style="display:none"></audio>
+    </body>
+</html>

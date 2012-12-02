@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+        Remove this if you use the .htaccess -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+        <title>main</title>
+        <meta name="description" content="" />
+        <meta name="generator" content="Studio 3 http://aptana.com/" />
+        <meta name="author" content="Alex Cheng" />
+        <meta name="viewport" content="width=device-width; initial-scale=1.0" />
+        <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link href="styles/base.css" rel="stylesheet" type="text/css"/>
+        <style type="text/css">
+            #verticalNav{
+            float:  left;
+            width:  125px;
+            text-align: center;
+            font: 14px/24px arial,\5b8b\4f53,sans-serif,"Microsoft YaHei",tahoma;
+            }
+
+            #verticalNav a:hover{
+            color:#FF6600;
+            }
+
+            #verticalNav .nav1 a{
+            height: 31px;
+            color:#969;
+            border-left:#606 solid 3px;
+            text-align:center;
+            vertical-align: middle;
+            }
+
+            #verticalNav .nav1 a:hover{
+            background-repeat:no-repeat;
+            background-image:url(images/1.png);
+            }
+
+            #verticalNav .nav2 a{
+            height: 31px;
+            color:black;
+            border-left:#0F3 solid 3px;
+            }
+
+            #verticalNav .nav2 a:hover{
+            background-repeat:no-repeat;
+            background-image:url(images/2.png);
+            }
+
+            #verticalNav .nav3 a{
+            height: 31px;
+            color:#3CF;
+            border-left:#3CF solid 3px;
+            }
+
+            #verticalNav .nav3 a:hover{
+            background-repeat:no-repeat;
+            background-image:url(images/3.png)
+            }
+
+            #verticalNav .nav4{
+            height: 31px;
+            background-repeat:no-repeat;
+            background-image:url(images/4.png)
+            }
+            #verticalNav .nav5{
+            height: 31px;
+            background-repeat:no-repeat;
+            background-image:url(images/5.png)
+            }
+            #verticalNav .nav6{
+            height: 31px;
+            background-repeat:no-repeat;
+            background-image:url(images/6.png)
+            }
+        </style>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                $("#main_nav li>a").click(function(event) {
+                    $("#main_area").empty().append('<iframe frameborder="0"/>');
+                    var frame = $("#main_area > iframe");
+                    frame.attr("src", this.href);
+                    event.preventDefault(); 
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <div>
+            <div id="verticalNav">
+                <ul id="main_nav">
+                    <li class="nav1">
+                        <a href="zdxj">重点详解</a>
+                    </li>
+                    <li class="nav2">
+                        <a href="dcjx">单词句型</a>
+                    </li>
+                    <li class="nav3">
+                        <a href="tblx">同步练习</a>
+                    </li>
+                    <li class="nav4">
+                        <a href="ldkw">朗读课文</a>
+                    </li>
+                    <li class="nav5">
+                        <a href="tkss">题库搜索</a>
+                    </li>
+                    <li class="nav6">
+                        <a href="sqwd">社区问答</a>
+                    </li>
+                </ul>
+            </div>
+            <div id="main_area">
+            </div>
+        </div>
+    </body>
+</html>
