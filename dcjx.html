@@ -13,28 +13,258 @@
         <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        
         <link rel="stylesheet" href="styles/common.css" type="text/css"/>
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+        <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
+        <script type="text/javascript">
+            var tongbu = {
+                "wordList" : null,
+                "senList" : null
+            };
+
+            function loadWordList(wordListXmlNode) {
+                //
+            }
+
+            function loadSenList(senListXmlNode) {
+                //
+            }
+
+            function escape4Reg(s) {
+                var buf = [];
+                for(var i = 0; i < s.length; i++) {
+                    var c = s.charAt(i);
+                    switch (c) {
+                        case '.' :
+                            buf.push('\\x2E');
+                            break;
+                        case '$' :
+                            buf.push('\\x24');
+                            break;
+                        case '^' :
+                            buf.push('\\x5E');
+                            break;
+                        case '{' :
+                            buf.push('\\x7B');
+                            break;
+                        case '[' :
+                            buf.push('\\x5B');
+                            break;
+                        case '(' :
+                            buf.push('\\x28');
+                            break;
+                        case '|' :
+                            buf.push('\\x28');
+                            break;
+                        case ')' :
+                            buf.push('\\x29');
+                            break;
+                        case '*' :
+                            buf.push('\\x2A');
+                            break;
+                        case '+' :
+                            buf.push('\\x2B');
+                            break;
+                        case '?' :
+                            buf.push('\\x3F');
+                            break;
+                        case '\\' :
+                            buf.push('\\x5C');
+                            break;
+                        default :
+                            buf.push(c);
+                    }
+                }
+                return buf.join('');
+            }
+
+            $(function() {
+                $("#dialog").hide();
+
+                $.ajax({
+                    url : "http://localhost/coeus/data/test.xml",
+                    dataType : "xml",
+                    success : function(data) {
+                        var textlist = data.documentElement.getElementsByTagName("textlist")[0].getElementsByTagName("text");
+
+                        var wordlist = new Array();
+                        $(data.documentElement.getElementsByTagName("wordlist")[0].getElementsByTagName("word"))
+                        .each(function() {
+                            wordlist.push({
+                                text : this.getElementsByTagName("char")[0].textContent,
+                                page : this.getElementsByTagName("page")[0]
+                            });
+                        });
+                        var senlist = new Array();
+                        $(data.documentElement.getElementsByTagName("senlist")[0].getElementsByTagName("sen"))
+                        .each(function() {
+                            senlist.push({
+                                text : this.getElementsByTagName("char")[0].textContent,
+                                page : this.getElementsByTagName("page")[0]
+                            });
+                        });
+                        var $board = $("#board");
+                        $(textlist).each(function() {
+                            var txtUrl = this.getElementsByTagName("txt")[0].textContent;
+                            var txtName = this.getElementsByTagName("name")[0].textContent;
+                            $.ajax({
+                                url : txtUrl,
+                                dataType : "text",
+                                context : txtName,
+                                success : function(data, context) {
+                                    var $textDiv = $("<div class='text'/>");
+                                    $("<h2/>").text(this).appendTo($textDiv);
+                                    $(data.split("\n")).each(function() {
+                                        var str = this;
+                                        $(wordlist).each(function() {
+                                            str = str.replace(this.text, "<span class='word'>" + this.text + "</span>");
+                                        });
+                                        $(senlist).each(function() {
+                                            str = str.replace(this.text, "<span class='sentence'>" + this.text + "</span>");
+                                        });
+                                        $textDiv.append($("<p/>").html(str));
+                                    });
+                                    $("span").each(function() {
+                                        var text = $(this).text();
+                                        for(var i = 0; i < wordlist.length; i++) {
+                                            if(wordlist[i].text == text) {
+                                                var page = wordlist[i].page;
+                                                $(this).data("page", page);
+                                                break;
+                                            }
+                                        };
+
+                                        for(var i = 0; i < senlist.length; i++) {
+                                            var page = senlist[i].page;
+                                            $(this).data("page", page);
+                                            break;
+                                        };
+
+                                        // attach "click" event handler.
+                                        $(this).click(function(event) {
+                                            var page = $(this).data("page");
+
+                                            $.ajax({
+                                                url : page.getElementsByTagName("line")[0].textContent,
+                                                dataType : "xml",
+                                                success : function(data) {
+                                                    var elements = data.documentElement.getElementsByTagName("l");
+                                                    var lines = new Array();
+                                                    $(elements).each(function() {
+                                                        lines.push({
+                                                            t : this.getAttribute("t"),
+                                                            x : this.getAttribute("x"),
+                                                            y : this.getAttribute("y"),
+                                                            points : this.textContent.split(",")
+                                                        });
+                                                    });
+                                                    // listen to audio player.
+                                                    var context = {
+                                                        "lines" : lines,
+                                                    };
+                                                    var $player = $("#player");
+                                                    $player.data("context", context);
+                                                }
+                                            });
+
+                                            // draw the picture of class ware.
+                                            var img = document.createElement("img");
+                                            img.onload = function() {
+                                                $("#player").data("bgImage", this);
+                                            }
+                                            img.src = page.getElementsByTagName("graph")[0].textContent;
+
+                                            var canvas = $("#canvas")[0];
+                                            canvas.width = 400;
+                                            canvas.height = 300;
+
+                                            $("#dialog").dialog({
+                                                modal : true,
+                                                position : {
+                                                    my : "center",
+                                                    at : "center",
+                                                    of : window.document
+                                                },
+                                                resizable : false,
+                                                width : 460,
+                                                height : 400,
+                                                close : function(event, ui) {
+                                                    var player = $("#player")[0];
+                                                    player.pause();
+                                                    //$container.show();
+                                                },
+                                                open : function(event, ui) {
+                                                    $("#player").show();
+                                                    var player = $("#player")[0];
+                                                    player.src = page.getElementsByTagName("mp3")[0].textContent;
+                                                    player.load();
+                                                    player.play();
+                                                }
+                                            });
+
+                                        });
+                                        
+                                        // listen to player's event.
+                                        $player = $("#player");
+                                        $player.bind("timeupdate", function() {
+                                            var canvas = $("#canvas")[0];
+                                            var ctx = canvas.getContext("2d");
+                                            var context = $(this).data("context");
+                                            var lines = undefined;
+                                            if(context != undefined)
+                                            {
+                                                lines = context.lines;
+                                            }
+                                            
+                                            var current = this.currentTime * 10;
+
+                                            // for testing.
+                                            //$("#prompt").text(current);
+
+                                            var img = $player.data("bgImage");
+                                            if(img != undefined) {
+                                                ctx.fillStyle = ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                            } else {
+                                                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                            }
+
+                                            if(lines == undefined) {
+                                                return;
+                                            }
+                                            
+                                            ctx.beginPath();
+                                            ctx.strokeStyle = "rgb(200, 20, 20)";
+                                            ctx.lineWidth = 1;
+                                            for(var i = 0; i < lines.length; i++) {
+                                                var line = lines[i];
+                                                if(current >= line.t) {
+                                                    ctx.moveTo(line.x, line.y);
+                                                    var v =   Math.min(line.points.length, Math.round( current - line.t)) - 1;
+                                                    ctx.lineTo(line.points[v], line.y);
+                                                } else {
+                                                    break;
+                                                }
+                                            }
+
+                                            ctx.stroke();
+                                        });
+                                    });
+                                    $textDiv.appendTo($board);
+                                }
+                            });
+                        });
+                    }
+                });
+            });
+
+        </script>
     </head>
     <body>
-        <div>
-            <header>
-                <h1>dcjx</h1>
-            </header>
-            <nav>
-                <p>
-                    <a href="/">Home</a>
-                </p>
-                <p>
-                    <a href="/contact">Contact</a>
-                </p>
-            </nav>
-            <div></div>
-            <footer>
-                <p>
-                    &copy; Copyright 2012 by Alex Cheng
-                </p>
-            </footer>
+        <div id="board"></div>
+        <div id="dialog">
+            <canvas id="canvas"></canvas>
+            <audio id="player" src="" style="width: 100%;" controls="controls"></audio>
         </div>
     </body>
 </html>

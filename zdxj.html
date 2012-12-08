@@ -16,7 +16,8 @@
         <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
         <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
         <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
-        <script type="text/javascript">$(function() {
+        <script type="text/javascript">
+            $(function() {
                 $("#player").hide();
 
                 $.ajax({
@@ -35,79 +36,38 @@
                                 var context = $(this).data("context");
 
                                 $.ajax({
-                                   url : context.getElementsByTagName("line")[0].textContent,
-                                   dataType : "xml",
-                                   success : function (data) {
-                                       var elements = data.documentElement.getElementsByTagName("l");
-                                       var lines = new Array();
-                                       $(elements).each(function() {
-                                          lines.push(
-                                               {
-                                                   t : this.getAttribute("t"),
-                                                   x : this.getAttribute("x"),
-                                                   y : this.getAttribute("y"),
-                                                   points : this.textContent.split(",")
-                                               }
-                                           );
-                                       });
-                                       
-                                       // listen to audio player.
-                                       var context = {
-                                           "lines" : lines, 
-                                       };
-                                       var $player = $("#player");
-                                       $player.data("context", context);
-                                       $player.bind("timeupdate", function() {
-                                          var canvas = $("#canvas")[0];
-                                          var ctx = canvas.getContext("2d");
-                                          var context = $(this).data("context");
-                                          var lines = context.lines;
-                                          var current = this.currentTime * 10;
-                                          
-                                          // for testing.
-                                          //$("#prompt").text(current);
-
-                                          var img = $player.data("bgImage");
-                                          if(img != undefined) {
-                                              ctx.fillStyle = ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                                          }
-                                          else {
-                                              ctx.clearRect(0, 0, canvas.width, canvas.height);
-                                          }
-                                                                                    
-                                          ctx.beginPath();
-                                          ctx.strokeStyle = "rgb(200, 20, 20)";
-                                          ctx.lineWidth = 1;
-                                          for (var i=0; i < lines.length; i++) {
-                                            var line = lines[i];
-                                            if(current >= line.t) {
-                                                ctx.moveTo(line.x, line.y);
-                                                var v = Math.min(
-                                                    line.points.length, 
-                                                    Math.round(current - line.t)
-                                                    ) - 1;
-                                                ctx.lineTo(line.points[v], line.y);
-                                            }
-                                            else{
-                                                break;
-                                            }
-                                          }
-                                          
-                                          ctx.stroke();
-                                       });
-                                   }
+                                    url : context.getElementsByTagName("line")[0].textContent,
+                                    dataType : "xml",
+                                    success : function(data) {
+                                        var elements = data.documentElement.getElementsByTagName("l");
+                                        var lines = new Array();
+                                        $(elements).each(function() {
+                                            lines.push({
+                                                t : this.getAttribute("t"),
+                                                x : this.getAttribute("x"),
+                                                y : this.getAttribute("y"),
+                                                points : this.textContent.split(",")
+                                            });
+                                        });
+                                        // listen to audio player.
+                                        var context = {
+                                            "lines" : lines,
+                                        };
+                                        var $player = $("#player");
+                                        $player.data("context", context);
+                                    }
                                 });
-                                
+
                                 $container.hide();
-                                
+
                                 //$("#board img").attr("src", context.getElementsByTagName("graph")[0].textContent);
                                 var img = document.createElement("img");
-                                img.onload = function () {
+                                img.onload = function() {
                                     $("#player").data("bgImage", this);
                                 }
                                 img.src = context.getElementsByTagName("graph")[0].textContent;
-                                
-                                var canvas = $("#canvas")[0]; 
+
+                                var canvas = $("#canvas")[0];
                                 canvas.width = "700";
                                 canvas.height = "300";
 
@@ -134,14 +94,50 @@
                                         player.play();
                                     }
                                 });
+
+                                // listen to player's event.
+                                $("#player").bind("timeupdate", function() {
+                                    var canvas = $("#canvas")[0];
+                                    var ctx = canvas.getContext("2d");
+                                    var context = $(this).data("context");
+                                    var lines = context.lines;
+                                    var current = this.currentTime * 10;
+
+                                    // for testing.
+                                    //$("#prompt").text(current);
+
+                                    var img = $player.data("bgImage");
+                                    if(img != undefined) {
+                                        ctx.fillStyle = ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                                    } else {
+                                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                                    }
+
+                                    ctx.beginPath();
+                                    ctx.strokeStyle = "rgb(200, 20, 20)";
+                                    ctx.lineWidth = 1;
+                                    for(var i = 0; i < lines.length; i++) {
+                                        var line = lines[i];
+                                        if(current >= line.t) {
+                                            ctx.moveTo(line.x, line.y);
+                                            var v =  Math.min(line.points.length, Math.round( current - line.t)) - 1;
+                                            ctx.lineTo(line.points[v], line.y);
+                                        } else {
+                                            break;
+                                        }
+                                    }
+
+                                    ctx.stroke();
+                                });
                             });
                         });
                     }
                 });
 
-                var $player = $("#player"); 
+                var $player = $("#player");
             });
-</script>
+
+        </script>
     </head>
     <body>
         <div id="container"></div>

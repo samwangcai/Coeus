@@ -1,6 +1,6 @@
 @charset "utf-8";
 
-.clickable {
+.clickable, .word, .sentence {
     background-color: rgba(50, 50, 50, 0.3);
     display: inline;
 }
