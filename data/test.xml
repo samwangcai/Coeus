@@ -234,7 +234,7 @@
 			<page>
 				<graph>/data/rjclass/images/19934_1.gif</graph>
 				<mp3>/data/explain_mp3/19934_1.mp3</mp3>
-				<line>/explain/displayxml.do?id=19934_1</line>
+				<line>/data/explain/19934_1</line>
 			</page>
 		</grammar>
 		<grammar>
@@ -243,7 +243,7 @@
 			<page>
 				<graph>/data/rjclass/images/19934_2.gif</graph>
 				<mp3>/data/explain_mp3/19934_2.mp3</mp3>
-				<line>/explain/displayxml.do?id=19934_2</line>
+				<line>/data/explain/19934_2</line>
 			</page>
 		</grammar>
 		<grammar>
@@ -252,7 +252,7 @@
 			<page>
 				<graph>/data/rjclass/images/19934_3.gif</graph>
 				<mp3>/data/explain_mp3/19934_3.mp3</mp3>
-				<line>/explain/displayxml.do?id=19934_3</line>
+				<line>/data/explain/19934_3</line>
 			</page>
 		</grammar>
 		<grammar>
@@ -261,7 +261,7 @@
 			<page>
 				<graph>/data/rjclass/images/19934_4.gif</graph>
 				<mp3>/data/explain_mp3/19934_4.mp3</mp3>
-				<line>/explain/displayxml.do?id=19934_4</line>
+				<line>/data/explain/19934_4</line>
 			</page>
 		</grammar>
 	</grammarlist>
