@@ -136,9 +136,11 @@
                                         };
 
                                         for(var i = 0; i < senlist.length; i++) {
-                                            var page = senlist[i].page;
-                                            $(this).data("page", page);
-                                            break;
+                                            if(senlist[i].text == text) {
+                                                var page = senlist[i].page;
+                                                $(this).data("page", page);
+                                                break;
+                                            }
                                         };
 
                                         // attach "click" event handler.
@@ -240,7 +242,7 @@
                                                 var line = lines[i];
                                                 if(current >= line.t) {
                                                     ctx.moveTo(line.x, line.y);
-                                                    var v =   Math.min(line.points.length, Math.round( current - line.t)) - 1;
+                                                    var v = Math.min(line.points.length, Math.round( current - line.t)) - 1;
                                                     ctx.lineTo(line.points[v], line.y);
                                                 } else {
                                                     break;
