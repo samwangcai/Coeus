@@ -1,7 +1,180 @@
-<html>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>无标题文档</title>
+<script language="javascript" src="js/jquery-1.4.2.min.js"></script>
+<link href="css/global.css" rel="stylesheet" type="text/css" />
 </head>
+
 <body>
-hello, world!
+<script language="javascript">
+$(document).ready(function(){
+    $(".floatdiv").css("margin-top", ($(".maincontent").height()-$(".floatdiv:visible").height())/2);
+    $(".floatdiv").css("margin-left", ($(".maincontent").width()-$(".floatdiv:visible").width())/2);
+    $(".floatdiv .close, .floatdiv .btn, .maskdiv").bind("click", function(){  $(".floatdiv").hide(); $(".maskdiv").hide(); })
+});
+
+function showFloatDiv(wid)
+{
+    $("."+wid).show();
+    $("."+wid).css("margin-top", ($(".maincontent").height()-$("."+wid).height())/2);
+    $("."+wid).css("margin-left", ($(".maincontent").width()-$("."+wid).width())/2);
+    $(".maskdiv").show();
+}
+function showDiv(obj,id)
+{
+    $(".nav li").removeClass("on");
+    $(obj).addClass("on");
+    $(".blocks").hide();
+    $("#"+id).show();   
+}
+</script>
+<div class="container">
+    <div class="header">
+        <div class="content">
+        </div>
+    </div>
+    <div class="mainbody">
+        <div class="content">
+            <div class="maincontent">
+                <div class="floatdiv menudiv" style="display:none;">
+                    <div class="close"></div>
+                    <div class="space"></div>
+                    <div class="floatcontent">
+                        <div class="cword">conclusion   <strong>n.[kn'klu:n]</strong> </div>
+                        <p>
+                            <b>词汇拓展</b><br>
+                            1. 终结，结尾，最后部分<br>
+                            2. 结论<br>
+                            3. 结果，结局<br>
+                        </p>
+                        <p>
+                            <b>举例</b><br>
+                            In conclusion, Indians can make wonderful, inexpensive employees 
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="floatdiv popdiv" style="display:none;">
+                    <div class="space"></div>
+                    <div class="floatcontent">
+                        <p>该习题集需要付费购买 <span class="price">10.99</span> 元</p>
+                        <p>
+                            <input type="button" class="btn btn1" value="确认订单" />
+                            <input type="button" class="btn btn2" value="取消" />
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="floatdiv submitdiv" style="display:none;">
+                    <div class="close"></div>
+                    <div class="space"></div>
+                    <div class="floatcontent">
+                        <div class="title"></div>
+                        <div class="testScore">
+                            <table cellpadding="0" cellspacing="0" border="0" class="testTable">
+                                <tr>
+                                    <th>听力</th>
+                                    <td>共 24 题, 对 0 题, 正确率 0%</td>
+                                </tr>
+                                <tr>
+                                    <th>语法</th>
+                                    <td>共 24 题, 对 0 题, 正确率 0%</td>
+                                </tr>
+                                <tr>
+                                    <th>听力</th>
+                                    <td>共 24 题, 对 0 题, 正确率 0%</td>
+                                </tr>
+                                <tr>
+                                    <th>语法</th>
+                                    <td>共 24 题, 对 0 题, 正确率 0%</td>
+                                </tr>
+                                <tr class="summary">
+                                    <th>总分</th>
+                                    <td><span class="score">0分</span> (百分制)</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="testShare">
+                            题目有点难, 让你的好友也来试试吧 <a class="icons iconShare">分享给好友</a>
+                        </div>
+                        <div class="testBtn">
+                            <input type="button" class="btn btn3" value="详细解答和错误分析" />
+                        </div>    
+                    </div>
+                </div>
+                
+                <div class="floatdiv playerdiv" style="display:none;">
+                    <div class="close"></div>
+                    <div class="space"></div>
+                    <div class="floatcontent">
+                        <div class="canvasDiv greenCanvas">
+                            <canvas></canvas>
+                        </div>    
+                        <div class="soundPlayer">
+                            <video width="100%" height="50"></video>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="maskdiv"></div>
+                
+                <div class="nav">
+                    <div class="h2"></div>
+                    <div class="h3"></div>
+                    <ul>
+                        <li class="nav1 on" onclick="showDiv(this,'zdxj');">重点详解</li>
+                        <li class="nav2" onclick="showDiv(this,'dcjx');">单词句型</li>
+                        <li class="nav3" onclick="showDiv(this,'tblx');">同步练习</li>
+                        <li class="nav4" onclick="showDiv(this,'ldkw');">朗读课文</li>
+                        <li class="nav5" onclick="showDiv(this,'tkss');">题库搜索</li>
+                        <li class="nav6" onclick="showDiv(this,'sqwd');">社区问答</li>
+                    </ul>
+                    
+                    <ul>
+                        <li onclick="showFloatDiv('menudiv');">弹出框1</li>
+                        <li onclick="showFloatDiv('popdiv');">弹出框2</li>
+                        <li onclick="showFloatDiv('submitdiv');">弹出框3</li>
+                    </ul>
+                </div>
+                <div class="mainbox">
+                    <h2><span class="floatRight">人教版英语第一册 <a>重新选择课本</a></span></h2>
+                    <h3>
+                        <ul>
+                            <li>1. ESPN: The Worldwide Leader In Sports</li>
+                            <li>2. ESPN: The Worldwide Leader In Sports</li>
+                            <li class="on">3. ESPN: The Worldwide Leader In Sports</li>
+                            <li>4. ESPN: The Worldwide Leader In Sports</li>
+                        </ul>
+                        <a class="floatRight readAll">阅读全文</a>
+                    </h3>
+                    <div class="blocks" id="zdxj" style="display:none;">
+                        <iframe height="100%" width="100%" frameborder="none" src="./zdxj.html"></iframe>
+                    </div>
+                    <div class="blocks" id="dcjx" style="display:none;">
+                        <iframe height="100%" width="100%" frameborder="none" src="./dcjx.html"></iframe>
+                    </div>
+                    <div class="blocks" id="tblx" style="display:none;">
+                        <iframe height="100%" width="100%" frameborder="none" src="./tblx.html"></iframe>
+                    </div>
+                    <div class="blocks" id="ldkw" style="display:none;">
+                        <iframe height="100%" width="100%" frameborder="none" src="./ldkw.html"></iframe>
+                    </div>
+                    <div class="blocks" id="tkss" style="display:none;">
+                        <iframe height="100%" width="100%" frameborder="none" src="./tkss.html"></iframe>
+                    </div>
+                    <div class="blocks" id="sqwd" style="display:none;">
+                        <iframe height="100%" width="100%" frameborder="none" src="./sqwd.html"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="content">Copyright &copy; 2009-2011,www.51kehou.com,All rights reserved.</div>
+    </div>
+</div>
 </body>
 </html>
