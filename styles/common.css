@@ -4,3 +4,7 @@
     background-color: rgba(50, 50, 50, 0.3);
     display: inline;
 }
+
+.reading {
+    background-color: rgba(200, 40, 40, 0.3);
+}

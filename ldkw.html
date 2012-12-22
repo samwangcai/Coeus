@@ -13,26 +13,143 @@
         <!-- Replace favicon.ico & apple-touch-icon.png in the root of your domain and delete these references -->
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        
+        <link rel="stylesheet" href="styles/common.css" type="text/css"/>
+        
+        <link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
+        <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
+        
+        <script type="text/javascript">
+            $(function() {
+                var $player = $("#player");
+                var $board = $("#board");
+                var $playPause = $("#controller > span");
+
+                
+                function loadLrc(url, container) {
+                    var $textDiv = $("<div class='text'/>");     
+                    container.getTextLines = function() {
+                        return $textDiv.children("p");
+                    };
+               
+                    $.ajax({
+                        url: url,
+                        success: function(data) {
+                            $(data.split("\n")).each(function () {
+                                var line = this.substr(10);
+                                var time = this.substring(1, 8);
+                                var second = time.substr(3);
+                                var minute = time.substr(0, 2);
+                                var timeInSecond = minute * 60 + second - 0.3;
+                                
+                                $("<p class='line'/>")
+                                    .html("<span>" + line + "</span>")
+                                    .data("time", timeInSecond)
+                                    .append($("<span class='clickableLink' style='width: 80px; height: 20px; display: inline-block'></span>")
+                                        .width(80)
+                                        .hover(
+                                            function () {
+                                                $(this).text("[~重放~]");
+                                            },
+                                            function () {
+                                                $(this).text("");
+                                            }
+                                        )
+                                        .click(function (){
+                                            $("span").removeClass("reading");
+                                            var p = $(this).parent();
+                                            var time = p.data("time");
+                                            var span = p.children("span").first();
+                                            span.addClass("reading");
+                                            
+                                            var player = $("audio")[0];
+                                            player.currentTime = time;
+                                            player.play();
+                                            $playPause.text("停止朗读");
+                                        })
+                                    )
+                                    .appendTo($textDiv);
+                            });
+                            
+                            $textDiv.appendTo(container);
+                        }
+                    });
+                }
+                
+                
+                $.ajax({
+                    url : "http://localhost/coeus/data/test.xml",
+                    dataType : "xml",
+                    success : function(data) {
+                        var textlist = data.documentElement.getElementsByTagName("textlist")[0].getElementsByTagName("text");
+                        $(textlist).each(function() {
+                            var lrcUrl = this.getElementsByTagName("lrc")[0].textContent;
+                            var mp3Url = this.getElementsByTagName("mp3")[0].textContent;
+                            var $section = $("<div />");
+                            
+                            loadLrc(lrcUrl, $section);
+                            
+                            $section.append(
+                                    $("<audio />")
+                                        .hide()
+                                        .each(function () {
+                                            this.src = mp3Url;
+                                            this.pause();
+                                            $(this).bind("timeupdate", function () {
+                                                if(this.paused == true) {
+                                                    return;
+                                                }
+                                                
+                                                var $lines = $section.getTextLines();
+                                                var $currentLine = undefined;
+                                                
+                                                for (var i=0; i < $lines.length; i++) {
+                                                  var $line = $($lines[i]);
+                                                  var time = $line.data("time");
+                                                  if(this.currentTime + 0.1 >= time) {
+                                                      $currentLine = $line;
+                                                  }
+                                                };
+
+                                                if($currentLine != undefined) {
+                                                    $("span").removeClass("reading");
+                                                    $currentLine.children("span").first().addClass("reading");
+                                                }
+
+                                            });
+                                        })
+                                    )
+                                    .appendTo($board);
+                        });
+                    }
+                });
+                
+                
+                // initialize controller
+                $playPause.click(function (event) {
+                    // TODO: select the current section to play.
+                    var player = $("audio")[0];
+                    var $this = $(this);
+                    if($this.text() == "朗读全文") {
+                        player.currentTime = 0;
+                        player.play();
+                        $this.text("停止朗读");
+                    }
+                    else {
+                        player.pause();
+                        $this.text("朗读全文");
+                    }
+                    $("span").removeClass("reading");
+                })
+            });
+        </script>
     </head>
     <body>
-        <div>
-            <header>
-                <h1>ldkw</h1>
-            </header>
-            <nav>
-                <p>
-                    <a href="/">Home</a>
-                </p>
-                <p>
-                    <a href="/contact">Contact</a>
-                </p>
-            </nav>
-            <div></div>
-            <footer>
-                <p>
-                    &copy; Copyright 2012 by Alex Cheng
-                </p>
-            </footer>
+        <div id="board">
+            <div id="controller">
+                <span>朗读全文</span>
+            </div>
         </div>
     </body>
 </html>
