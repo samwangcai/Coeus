@@ -22,22 +22,52 @@ function loadData() {
         success : function(data) {
             $g_data = $(data);
             g_zdxj.init($g_data);
+            g_dcjx.init($g_data);
         }
     });
+}
+
+
+function Page($page) {
+    this.graph = $page.children("graph").first().text();
+    this.loadedImage = null;
+    this.audio = $page.children("mp3").first().text();
+    this.lines = new Array();
+    var lines = this.lines;
+    
+    var lineUrl = $page.children("line").first().text();
+
+    // Load lines information.
+    $.ajax({
+        url : lineUrl,
+        dataType : "xml",
+        success : function(data) {
+            var elements = data.documentElement.getElementsByTagName("l");
+            $(elements).each(function() {
+                lines.push({
+                    t : this.getAttribute("t"),
+                    x : this.getAttribute("x"),
+                    y : this.getAttribute("y"),
+                    points : this.textContent.split(",")
+                });
+            });
+        }
+    });
+
+    // Load page's graph.
+    var page = this;
+    var img = document.createElement("img");
+    img.onload = function() {
+        page.loadedImage = this;
+    }
+    img.src = this.graph;
 }
 
 
 function Grammar($grammar) {
     this.name = $grammar.find("name").first().text();
     this.desc = $grammar.find("desc").first().text();
-    this.page = {
-        graph : $grammar.find("page graph").first().text(),
-        loadedImage : null,
-        audio : $grammar.find("page mp3").first().text(),
-        lines : new Array()
-    };
-    
-    var lineUrl = $grammar.find("page line").first().text();
+    this.page = new Page($grammar.children("page"));
     
     var name = this.name;
     var desc = this.desc;
@@ -72,6 +102,7 @@ function Grammar($grammar) {
                     within : $container
                 },
                 resizable : false,
+                draggable : false,
                 width : $container.width(),
                 height : $container.height(),
                 close : function(event, ui) {
@@ -117,32 +148,150 @@ function Grammar($grammar) {
             });
         });
     }
+}
+
+
+function Word($word) {
+    this.text = $word.children("char").text(),
+    this.page = new Page($word.children("page"));
+}
+
+
+function Sentence($sen) {
+    this.text = $sen.children("char").text(),
+    this.page = new Page($sen.children("page"));    
+}
+
+
+// $container must refer to a div containing <div class=board> and <div class=dialog> tags, where <div class=dialog> contains
+// <audio>, <canvas>.  
+function Text($text, $container, wordlist, senlist) {
+    // initialize properties.
+    var name = $text.children("name").text();
+    var audio = $text.children("mp3").text();
+    var lrcUrl = $text.children("lrc").text();
+    var txtUrl = $text.children("txt").text();
+        
+    this.name = name;
+    this.audio = audio;
     
-    // Load lines information.
+    // initialize html elements.
+    var $textDiv = $("<div class='text'/>");
+    this.$textDiv = $textDiv;
+    
+    var $board = $container.children("div.board");
+    var $dialog = $container.children("div.dialog");
+    var canvas = $dialog.children("canvas")[0];
+    var $player = $dialog.children("audio");
+    var player = $player[0];
+    
+    $dialog.hide();
+    
+    canvas.width = 400;
+    canvas.height = 300;
+
+    $textDiv.appendTo($board);
+    
+    
+    // Load text content and generate HTML element into text div.
     $.ajax({
-        url : lineUrl,
-        dataType : "xml",
-        success : function(data) {
-            var elements = data.documentElement.getElementsByTagName("l");
-            var lines = page.lines;
-            $(elements).each(function() {
-                lines.push({
-                    t : this.getAttribute("t"),
-                    x : this.getAttribute("x"),
-                    y : this.getAttribute("y"),
-                    points : this.textContent.split(",")
+        url : txtUrl,
+        dataType : "text",
+        success : function(data, context) {
+            $("<h2/>").text(this).appendTo($textDiv);
+            $(data.split("\n")).each(function() {
+                var str = this;
+                $(wordlist).each(function() {
+                    str = str.replace(this.text, "<span class='word'>" + this.text + "</span>");
+                });
+                $(senlist).each(function() {
+                    str = str.replace(this.text, "<span class='sentence'>" + this.text + "</span>");
+                });
+                $textDiv.append($("<p/>").html(str));
+            });
+            
+            $("span", $textDiv).each(function() {
+                var text = $(this).text();
+                for(var i = 0; i < wordlist.length; i++) {
+                    if(wordlist[i].text == text) {
+                        var page = wordlist[i].page;
+                        $(this).data("page", page);
+                        break;
+                    }
+                };
+
+                for(var i = 0; i < senlist.length; i++) {
+                    if(senlist[i].text == text) {
+                        var page = senlist[i].page;
+                        $(this).data("page", page);
+                        break;
+                    }
+                };
+
+                // attach "click" event handler to <span> of word or sentence.
+                $(this).click(function(event) {
+                    var page = $(this).data("page");
+                    
+                    $dialog.dialog({
+                        modal : true,
+                        position : {
+                            my : "center",
+                            at : "center",
+                            of : $container,
+                            within : $container
+                        },
+                        resizable : false,
+                        draggable : false,
+                        width : 460,
+                        height : 400,
+                        close : function(event, ui) {
+                            player.pause();
+                        },
+                        open : function(event, ui) {
+                            $player.show();
+                            player.src = page.audio;
+                            player.load();
+                            player.play();
+                        }
+                    });
+                });
+                
+                // listen to player's event.
+                $player.bind("timeupdate", function() {
+                    var ctx = canvas.getContext("2d");
+                    var lines = page.lines;
+                    if(lines == undefined) {
+                        return;
+                    }
+
+                    var current = this.currentTime * 10;
+
+                    var img = page.loadedImage;
+                    if(img != undefined) {
+                        ctx.fillStyle = ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    } else {
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    }
+                                        
+                    ctx.beginPath();
+                    ctx.strokeStyle = "rgb(200, 20, 20)";
+                    ctx.lineWidth = 1;
+                    for(var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        if(current >= line.t) {
+                            ctx.moveTo(line.x, line.y);
+                            var v = Math.min(line.points.length, Math.round( current - line.t)) - 1;
+                            ctx.lineTo(line.points[v], line.y);
+                        } else {
+                            break;
+                        }
+                    }
+
+                    ctx.stroke();
                 });
             });
         }
     });
-
-    // Load page's graph.
-    var img = document.createElement("img");
-    img.onload = function() {
-        page.loadedImage = this;
-    }
-    img.src = page.graph;
-
 }
 
 
@@ -160,6 +309,29 @@ var g_zdxj = {
    }
 }; // 重点详解
 
+
+var g_dcjx = {
+    wordlist : new Array(),
+    senlist : new Array(),
+    textlist : new Array(),
+    init : function($data) {
+        var wordlist = this.wordlist;        
+        $data.find("wordlist").children("word").each(function() {
+            wordlist.push(new Word($(this)));
+        });
+
+        var senlist = this.senlist;
+        $data.find("senlist").children("sen").each(function() {
+            senlist.push(new Sentence($(this)));
+        });
+        
+        var $container = $("#dcjx");
+        var textlist = this.textlist;
+        $data.find("textlist").children("text").each(function() {
+            textlist.push(new Text($(this), $container, wordlist, senlist));
+        });
+    }
+}; // 单词句型
 
 function initPage() {
     $(".floatdiv").css("margin-top", ($(".maincontent").height()-$(".floatdiv:visible").height())/2);
@@ -314,7 +486,11 @@ $(function() {
                         </div>
                     </div>
                     <div class="blocks" id="dcjx" style="display:none;">
-                        <iframe height="100%" width="100%" frameborder="none" src="./dcjx.html"></iframe>
+                        <div class="board"></div>
+                        <div class="dialog">
+                            <canvas id="canvas"></canvas>
+                            <audio id="player" src="" style="width: 100%; bottom: 0px; left: 0px; position: absolute;" controls="controls"></audio>
+                        </div>
                     </div>
                     <div class="blocks" id="tblx" style="display:none;">
                         <iframe height="100%" width="100%" frameborder="none" src="./tblx.html"></iframe>
