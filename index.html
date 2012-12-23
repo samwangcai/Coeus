@@ -68,11 +68,12 @@ function Grammar($grammar) {
                 position : {
                     my : "center",
                     at : "center",
-                    of : window.document
+                    of : $container,
+                    within : $container
                 },
                 resizable : false,
-                width : 700,
-                height : 400,
+                width : $container.width(),
+                height : $container.height(),
                 close : function(event, ui) {
                     player.pause();
                     $board.show();
