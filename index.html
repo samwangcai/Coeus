@@ -1,20 +1,174 @@
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>无标题文档</title>
-<script language="javascript" src="js/jquery-1.4.2.min.js"></script>
+<title>【51KeHou.com】网络中小学英语教育</title>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css" />
 <link href="css/global.css" rel="stylesheet" type="text/css" />
+<script language="javascript" src="js/jquery-1.8.3.min.js"></script>
+<script src="http://code.jquery.com/ui/1.9.2/jquery-ui.min.js"></script>
 </head>
 
 <body>
 <script language="javascript">
-$(document).ready(function(){
+// set global variables.
+var $g_data;
+
+
+function loadData() {
+    $.ajax({
+        url : "/coeus/data/test.xml",
+        dataType : "xml",
+        success : function(data) {
+            $g_data = $(data);
+            g_zdxj.init($g_data);
+        }
+    });
+}
+
+
+function Grammar($grammar) {
+    this.name = $grammar.find("name").first().text();
+    this.desc = $grammar.find("desc").first().text();
+    this.page = {
+        graph : $grammar.find("page graph").first().text(),
+        loadedImage : null,
+        audio : $grammar.find("page mp3").first().text(),
+        lines : new Array()
+    };
+    
+    var lineUrl = $grammar.find("page line").first().text();
+    
+    var name = this.name;
+    var desc = this.desc;
+    var page = this.page;
+    
+    // declare initialize UI function.
+    // $container must refer to a div containing <div class=board> and <div class=dialog> tags, where <div class=dialog> contains
+    // <audio>, <canvas>.  
+    this.initUI = function ($container) {
+        var $board = $container.children("div.board");
+        var $dialog = $container.children("div.dialog");
+        var canvas = $dialog.children("canvas")[0];
+        var player = $dialog.children("audio")[0];
+        
+        $dialog.hide();
+        
+        $("<h2/>").text(name).appendTo($board);
+        $("<h3/>").text(desc).appendTo($board)
+        .addClass("clickable")
+        .click(function(event) {
+            $board.hide();
+
+            canvas.width = "700";
+            canvas.height = "300";
+
+            $dialog.dialog({
+                modal : true,
+                position : {
+                    my : "center",
+                    at : "center",
+                    of : window.document
+                },
+                resizable : false,
+                width : 700,
+                height : 400,
+                close : function(event, ui) {
+                    player.pause();
+                    $board.show();
+                },
+                open : function(event, ui) {
+                    $(player).show();
+                    player.src = page.audio;
+                    player.load();
+                    player.play();
+                }
+            });
+            
+            // listen to player's event.
+            $(player).bind("timeupdate", function() {
+                var ctx = canvas.getContext("2d");
+                var lines = page.lines;
+                var current = this.currentTime * 10;
+
+                var img = page.loadedImage;
+                if(img != undefined) {
+                    ctx.fillStyle = ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+
+                ctx.beginPath();
+                ctx.strokeStyle = "rgb(200, 20, 20)";
+                ctx.lineWidth = 1;
+                for(var i = 0; i < lines.length; i++) {
+                    var line = lines[i];
+                    if(current >= line.t) {
+                        ctx.moveTo(line.x, line.y);
+                        var v =  Math.min(line.points.length, Math.round( current - line.t)) - 1;
+                        ctx.lineTo(line.points[v], line.y);
+                    } else {
+                        break;
+                    }
+                }
+
+                ctx.stroke();
+            });
+        });
+    }
+    
+    // Load lines information.
+    $.ajax({
+        url : lineUrl,
+        dataType : "xml",
+        success : function(data) {
+            var elements = data.documentElement.getElementsByTagName("l");
+            var lines = page.lines;
+            $(elements).each(function() {
+                lines.push({
+                    t : this.getAttribute("t"),
+                    x : this.getAttribute("x"),
+                    y : this.getAttribute("y"),
+                    points : this.textContent.split(",")
+                });
+            });
+        }
+    });
+
+    // Load page's graph.
+    var img = document.createElement("img");
+    img.onload = function() {
+        page.loadedImage = this;
+    }
+    img.src = page.graph;
+
+}
+
+
+var g_zdxj = {
+   grammars : new Array(),
+   init : function ($data) {
+       var grammars = this.grammars;
+       
+       var $container = $("#zdxj");
+       $data.find("grammar").each(function() {
+            var grammar = new Grammar($(this));
+            grammar.initUI($container);
+            grammars.push(grammar);
+        });
+   }
+}; // 重点详解
+
+
+function initPage() {
     $(".floatdiv").css("margin-top", ($(".maincontent").height()-$(".floatdiv:visible").height())/2);
     $(".floatdiv").css("margin-left", ($(".maincontent").width()-$(".floatdiv:visible").width())/2);
     $(".floatdiv .close, .floatdiv .btn, .maskdiv").bind("click", function(){  $(".floatdiv").hide(); $(".maskdiv").hide(); })
-});
+    
+    // Switch to Zhong Dian Xiang Jie page by default. 
+    showDiv(this,'zdxj');
+}
+
 
 function showFloatDiv(wid)
 {
@@ -23,6 +177,8 @@ function showFloatDiv(wid)
     $("."+wid).css("margin-left", ($(".maincontent").width()-$("."+wid).width())/2);
     $(".maskdiv").show();
 }
+
+
 function showDiv(obj,id)
 {
     $(".nav li").removeClass("on");
@@ -30,6 +186,11 @@ function showDiv(obj,id)
     $(".blocks").hide();
     $("#"+id).show();   
 }
+
+$(function() {
+   loadData();
+   initPage(); 
+});
 </script>
 <div class="container">
     <div class="header">
@@ -140,18 +301,16 @@ function showDiv(obj,id)
                     </ul>
                 </div>
                 <div class="mainbox">
-                    <h2><span class="floatRight">人教版英语第一册 <a>重新选择课本</a></span></h2>
+                    <h2><span class="floatLeft">人教版 九年级上Unit4</span></h2>
                     <h3>
-                        <ul>
-                            <li>1. ESPN: The Worldwide Leader In Sports</li>
-                            <li>2. ESPN: The Worldwide Leader In Sports</li>
-                            <li class="on">3. ESPN: The Worldwide Leader In Sports</li>
-                            <li>4. ESPN: The Worldwide Leader In Sports</li>
-                        </ul>
                         <a class="floatRight readAll">阅读全文</a>
                     </h3>
                     <div class="blocks" id="zdxj" style="display:none;">
-                        <iframe height="100%" width="100%" frameborder="none" src="./zdxj.html"></iframe>
+                        <div class="board"></div>
+                        <div class="dialog">
+                            <canvas id="canvas"></canvas>
+                            <audio id="player" src="" style="width: 100%; bottom: 0px; left: 0px; position: absolute;" controls="controls"></audio>
+                        </div>
                     </div>
                     <div class="blocks" id="dcjx" style="display:none;">
                         <iframe height="100%" width="100%" frameborder="none" src="./dcjx.html"></iframe>

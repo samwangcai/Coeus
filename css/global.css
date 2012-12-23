@@ -137,7 +137,7 @@ a:hover {  background-color:#0083B7; color:#fff; }
 .maincontent .nav { width:125px; height:600px; float:left; border-right:1px solid #f4e6e6; }
 .maincontent .mainbox { width:765px; height:600px; float:right; border-left:1px solid #f4e6e6; }
 /* .maincontent .mainbox a { color:#3dabe6; }  */
-.maincontent .mainbox h2, .maincontent .mainbox h3, .maincontent .nav .h2, .maincontent .nav .h3 { height:45px; line-height:45px; font-size:12px; margin:0px; padding:0 10px 0 0; border-bottom:1px solid #f4e6e6  }
+.maincontent .mainbox h2, .maincontent .mainbox h3, .maincontent .nav .h2, .maincontent .nav .h3 { height:45px; line-height:45px; font-size:16px; margin:0px; padding:0 10px 0 0; border-bottom:1px solid #f4e6e6  }
 .maincontent .mainbox h3, .maincontent .nav .h3 { height:35px; line-height:35px; }
 .maincontent .nav .h2, .maincontent .nav .h3 { width:110%; }
 
@@ -248,17 +248,10 @@ filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', end
 .book_block a .title { width:100%; height:32px; overflow:hidden; margin-bottom:5px; }
 .book_block a .price { color:#C03; height:25px; font-size:14px; font-weight:bold; }
 
-
-
-
-
-
-
-
-
-
-
-
+.clickable {
+    background-color: rgba(50, 50, 50, 0.3);
+    display: inline;
+}
 
 
 
