@@ -145,13 +145,15 @@ a:hover {  background-color:#0083B7; color:#fff; }
 
 .maincontent .mainbox h2 a { color:#3dabe6; }
 
-.maincontent .mainbox h3 ul { display:inline-block; margin:0px; padding:0px; padding-bottom:10px; position:relative; z-index:10000; }
+/*.maincontent .mainbox h3 ul { display:inline-block; margin:0px; padding:0px; padding-bottom:10px; position:relative; z-index:10000; }
 .maincontent .mainbox h3 ul li { font-size:14px; line-height:30px; padding:0 10px; display:none; margin:0px; padding:0 35px 0 10px; list-style:none; }
 .maincontent .mainbox h3 ul li.on { font-size:18px; display:block; line-height:35px; background:url(../images/arrow_down.gif) center right no-repeat; }
 .maincontent .mainbox h3 ul:hover { background:#fffcee; }
 .maincontent .mainbox h3 ul:hover li { display:block; }
 .maincontent .mainbox h3 ul:hover li.on { background:none; font-size:14px; line-height:30px; }
 .maincontent .mainbox h3 ul:hover li:hover { font-size:18px; line-height:35px; }
+*/
+
 .maincontent .mainbox h3 .readAll { padding-left:40px; padding-right:15px; background:url(../images/read_all.gif) center left no-repeat; }
 
 .maincontent .mainbox .blocks {  }
@@ -255,6 +257,10 @@ filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec', end
     display: inline;
 }
 
+ul.tabs { display: inline; font-weight:normal; margin-left:0px; padding:0px}
+ul.tabs li { display: inline-block; width:90px; height:22px;vertical-align:middle; text-align:center; margin:0px 8px 0px 8px; cursor: pointer }
+
+ul.tabs li.on { background-color:#bd2424; -moz-border-radius:3px; -webkit-border-radius:3px; border-radius:3px; }
 
 
 

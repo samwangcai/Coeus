@@ -12,6 +12,8 @@
 <body>
 <script language="javascript">
 // set global variables.
+var $g_readingController;
+var $g_sections;
 var $g_data;
 
 
@@ -23,6 +25,7 @@ function loadData() {
             $g_data = $(data);
             g_zdxj.init($g_data);
             g_dcjx.init($g_data);
+            g_ldkw.init($g_data);
         }
     });
 }
@@ -198,7 +201,6 @@ function Text($text, $container, wordlist, senlist) {
         url : txtUrl,
         dataType : "text",
         success : function(data, context) {
-            $("<h2/>").text(this).appendTo($textDiv);
             $(data.split("\n")).each(function() {
                 var str = this;
                 $(wordlist).each(function() {
@@ -295,6 +297,139 @@ function Text($text, $container, wordlist, senlist) {
 }
 
 
+// $container must refer to a div containing <div class=board> and <audio>.
+function ReadingText($text, $controller, $sections, $container) {
+    // initialize properties.
+    var name = $text.children("name").text();
+    var audio = $text.children("mp3").text();
+    var lrcUrl = $text.children("lrc").text();
+    var txtUrl = $text.children("txt").text();
+        
+    this.name = name;
+    this.audio = audio;
+    
+    // initialize html elements.
+    var $div = $("<div />").appendTo($container);
+    
+    var $player = $("<audio/>").hide()
+        .appendTo($div)
+        .each(function () {
+            this.src = audio;
+            this.pause();
+            $(this).bind("timeupdate", function () {
+                if(this.paused == true) {
+                    return;
+                }
+                
+                var $lines = $div.getTextLines();
+                var $currentLine = undefined;
+                
+                for (var i=0; i < $lines.length; i++) {
+                  var $line = $($lines[i]);
+                  var time = $line.data("time");
+                  if(this.currentTime + 0.1 >= time) {
+                      $currentLine = $line;
+                  }
+                };
+    
+                if($currentLine != undefined) {
+                    $("span").removeClass("reading");
+                    $currentLine.children("span").first().addClass("reading");
+                }
+            });
+        });
+    
+    var player = $player[0];
+
+    // Append section.
+    $sections.append(
+        $("<li/>").text(name).click(function() {
+            $(g_ldkw.readinglist).each(function(index) {
+                if(this.name == name) {
+                    g_ldkw.switchToSection(index);
+                }
+            });
+        })
+    );
+    
+    // Load lrc.
+    loadLrc(lrcUrl, $div, $controller);
+    
+    function loadLrc(url, $container, $controller) {
+        var $textDiv = $("<div class='text'/>");     
+        $container.getTextLines = function() {
+            return $textDiv.children("p");
+        };
+   
+        $.ajax({
+            url: url,
+            success: function(data) {
+                $(data.split("\n")).each(function () {
+                    var line = this.substr(10);
+                    var time = this.substring(1, 8);
+                    var second = time.substr(3);
+                    var minute = time.substr(0, 2);
+                    var timeInSecond = minute * 60 + second - 0.3;
+                    
+                    $("<p class='line'/>")
+                        .html("<span>" + line + "</span>")
+                        .data("time", timeInSecond)
+                        .append($("<span class='clickableLink' style='width: 80px; height: 20px; display: inline-block'></span>")
+                            .width(80)
+                            .hover(
+                                function () {
+                                    $(this).text("[~重放~]");
+                                },
+                                function () {
+                                    $(this).text("");
+                                }
+                            )
+                            .click(function (){
+                                $("span", $container).removeClass("reading");
+                                var p = $(this).parent();
+                                var time = p.data("time");
+                                var span = p.children("span").first();
+                                span.addClass("reading");
+                                
+                                player.currentTime = time;
+                                player.play();
+                                $controller.text("停止朗读");
+                            })
+                        )
+                        .appendTo($textDiv);
+                });
+                
+                $textDiv.appendTo($container);
+            }
+        });
+    }
+
+    
+    this.show = function () {
+        $div.show();
+        $div.find("span").removeClass("reading");
+        $controller.text("朗读全文");
+    }
+    
+    
+    this.hide = function () {
+        player.pause();
+        $div.hide();
+    }
+    
+    
+    this.read = function () {
+        player.play();
+        $div.find("span").removeClass("reading");
+    }
+    
+    this.stop = function () {
+        player.pause();
+        $div.find("span").removeClass("reading");
+    }
+}
+
+
 var g_zdxj = {
    grammars : new Array(),
    init : function ($data) {
@@ -333,6 +468,52 @@ var g_dcjx = {
     }
 }; // 单词句型
 
+
+var g_ldkw = {
+    readinglist : new Array(),
+    currentText : null,
+    init : function($data) {
+        var readinglist = this.readinglist;
+        $data.find("textlist").children("text").each(function() {
+            var $container = $(".mainbox #ldkw");
+            readinglist.push(new ReadingText($(this), $g_readingController, $g_sections, $container));
+        });
+        
+        var ldkw = g_ldkw;
+        // initialize controller.
+        $g_readingController.click(function() {
+            if(ldkw.currentText != null) {
+                var $this = $(this);
+                if($this.text() == "朗读全文") {
+                    ldkw.currentText.read();
+                    $this.text("停止朗读");
+                }
+                else {
+                    ldkw.currentText.stop();
+                    $this.text("朗读全文");
+                }
+            }
+        })
+        
+        this.switchToSection(0);
+        
+    },
+    switchToSection : function(index) {
+        $g_sections.children("li").removeClass("on");
+        $g_sections.children("li").eq(index).addClass("on");
+        var ldkw = this;
+        $(this.readinglist).each(function(idx) {
+            if(idx == index) {
+                ldkw.currentText = this;
+                this.show();
+            }
+            else {
+                this.hide();
+            }
+        });
+    }
+}; // 朗读课文
+
 function initPage() {
     $(".floatdiv").css("margin-top", ($(".maincontent").height()-$(".floatdiv:visible").height())/2);
     $(".floatdiv").css("margin-left", ($(".maincontent").width()-$(".floatdiv:visible").width())/2);
@@ -357,11 +538,23 @@ function showDiv(obj,id)
     $(".nav li").removeClass("on");
     $(obj).addClass("on");
     $(".blocks").hide();
-    $("#"+id).show();   
+    $("#"+id).show();
+    if(id != "ldkw") {
+        $g_readingController.hide();
+        $g_sections.hide();
+    }
+    else {
+        $g_readingController.show();
+        $g_sections.show();
+    }
 }
 
 $(function() {
+   $g_readingController = $("#readingController");
+   $g_sections = $(".mainbox #sections"); 
+    
    loadData();
+   
    initPage(); 
 });
 </script>
@@ -476,7 +669,11 @@ $(function() {
                 <div class="mainbox">
                     <h2><span class="floatLeft">人教版 九年级上Unit4</span></h2>
                     <h3>
-                        <a class="floatRight readAll">阅读全文</a>
+                        <ul id="sections" class="tabs">
+                            <!--<li class="on">Unit 1</li>
+                            <li>Unit 2</li> -->
+                        </ul>
+                        <a id="readingController" class="floatRight readAll">朗读全文</a>
                     </h3>
                     <div class="blocks" id="zdxj" style="display:none;">
                         <div class="board"></div>
@@ -496,7 +693,6 @@ $(function() {
                         <iframe height="100%" width="100%" frameborder="none" src="./tblx.html"></iframe>
                     </div>
                     <div class="blocks" id="ldkw" style="display:none;">
-                        <iframe height="100%" width="100%" frameborder="none" src="./ldkw.html"></iframe>
                     </div>
                     <div class="blocks" id="tkss" style="display:none;">
                         <iframe height="100%" width="100%" frameborder="none" src="./tkss.html"></iframe>
