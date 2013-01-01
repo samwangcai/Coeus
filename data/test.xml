@@ -2,19 +2,19 @@
 	<name>人教版 九年级上 Unit4</name>
 	<textlist>
 		<text>
-			<name>Unit4 A</name>
+			<name>Section A</name>
 			<mp3>/data/rjclass/text/grade9_unit4_1.mp3</mp3>
 			<lrc>/data/rjclass/text/grade9_unit4_1.lrc</lrc>
 			<txt>/data/rjclass/text/grade9_unit4_1.txt</txt>
 		</text>
 		<text>
-			<name>Unit4 2a</name>
+			<name>Section A-2a</name>
 			<mp3>/data/rjclass/text/grade9_unit4_2.mp3</mp3>
 			<lrc>/data/rjclass/text/grade9_unit4_2.lrc</lrc>
 			<txt>/data/rjclass/text/grade9_unit4_2.txt</txt>
 		</text>
 		<text>
-			<name>Unit4 B</name>
+			<name>Section B</name>
 			<mp3>/data/rjclass/text/grade9_unit4_3.mp3</mp3>
 			<lrc>/data/rjclass/text/grade9_unit4_3.lrc</lrc>
 			<txt>/data/rjclass/text/grade9_unit4_3.txt</txt>
@@ -266,22 +266,41 @@
 		</grammar>
 	</grammarlist>
 
-
-	<praclist>
-		<prac>
-			<name>课后练习 I</name>
-			<desc>课后练习 I</desc>
-			<addr>/player/mode2.jsp?id=18901</addr>
-		</prac>
-		<prac>
-			<name>课后练习 II</name>
-			<desc>课后练习 II</desc>
-			<addr>/player/mode2.jsp?id=18902</addr>
-		</prac>
-		<prac>
-			<name>课后练习 III</name>
-			<desc>课后练习 III</desc>
-			<addr>/player/mode2.jsp?id=18903</addr>
-		</prac>
-	</praclist>
+    <praclist>
+        <prac>
+            <name>课后练习 I</name>
+            <desc>单元基础演练 I</desc>
+            <addr>/player/mode2.jsp?id=18920</addr>
+        </prac>
+        <prac>
+            <name>课后练习 II</name>
+            <desc>英语速效提升 I</desc>
+            <addr>/player/mode2.jsp?id=18921</addr>
+        </prac>
+        <prac>
+            <name>课后练习 III</name>
+            <desc>单元基础演练 II</desc>
+            <addr>/player/mode2.jsp?id=18922</addr>
+        </prac>
+        <prac>
+            <name>课后练习 IV</name>
+            <desc>英语速效提升 II</desc>
+            <addr>/player/mode2.jsp?id=18923</addr>
+        </prac>
+        <prac>
+            <name>课后练习 V</name>
+            <desc>单元基础演练 III</desc>
+            <addr>/player/mode2.jsp?id=18924</addr>
+        </prac>
+        <prac>
+            <name>课后练习 VI</name>
+            <desc>英语速效提升 III</desc>
+            <addr>/player/mode2.jsp?id=18925</addr>
+        </prac>
+        <prac>
+            <name>课后练习 VII</name>
+            <desc>单元测验</desc>
+            <addr>/player/mode2.jsp?id=18926</addr>
+        </prac>
+    </praclist>
 </tongbu>

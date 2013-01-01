@@ -26,6 +26,7 @@ function loadData() {
             g_zdxj.init($g_data);
             g_dcjx.init($g_data);
             g_ldkw.init($g_data);
+            g_tblx.init($g_data);
         }
     });
 }
@@ -430,6 +431,29 @@ function ReadingText($text, $controller, $sections, $container) {
 }
 
 
+// $container must refer to a div.
+function Practice($prac, $container) {
+    var name = $prac.children("name").text();
+    var desc = $prac.children("desc").text();
+    var addr = $prac.children("addr").text();
+    var matches = addr.match(/id=(\d+)/);
+    var id = null;
+    if(matches != null) {
+        id = matches[1];
+    }
+    
+    this.name = name;
+    this.desc = desc;
+    this.id = id;
+    
+    // Initialize UI.
+    $("<p/>").text(name).appendTo($container);
+    $("<a/>").text(desc).appendTo($container).click(function(event) {
+        alert("hello");
+    });
+}
+
+
 var g_zdxj = {
    grammars : new Array(),
    init : function ($data) {
@@ -513,6 +537,18 @@ var g_ldkw = {
         });
     }
 }; // 朗读课文
+
+
+var g_tblx = {
+    pralist : new Array(),
+    init : function($data) {
+        var pralist = this.pralist;
+        var $container = $(".mainbox #tblx");
+        $data.find("praclist").children("prac").each(function() {
+            pralist.push(new Practice($(this), $container));
+        });
+    }
+}
 
 function initPage() {
     $(".floatdiv").css("margin-top", ($(".maincontent").height()-$(".floatdiv:visible").height())/2);
@@ -690,7 +726,6 @@ $(function() {
                         </div>
                     </div>
                     <div class="blocks" id="tblx" style="display:none;">
-                        <iframe height="100%" width="100%" frameborder="none" src="./tblx.html"></iframe>
                     </div>
                     <div class="blocks" id="ldkw" style="display:none;">
                     </div>
